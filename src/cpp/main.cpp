@@ -44,12 +44,13 @@ int main() {
     auto mag_threshold_pass = new Shader("src/glsl/mag_threshold_pass.vert", "src/glsl/mag_threshold_pass.frag");
     auto double_threshold_pass = new Shader("src/glsl/double_threshold_pass.vert", "src/glsl/double_threshold_pass.frag");
     auto hysteresis_pass = new Shader("src/glsl/hysteresis_pass.vert", "src/glsl/hysteresis_pass.frag");
+    auto blur_pass = new Shader("src/glsl/blur_pass.vert", "src/glsl/blur_pass.frag");
 
     cam = new Camera(WIDTH, HEIGHT);
 
     scene = new Model("assets/scene.obj");
 
-    glm::mat4 projection = glm::perspective((float)(M_PI / 4), (float)(WIDTH) / (float)(HEIGHT), 0.1f, 100.0f);
+    glm::mat4 projection = glm::perspective((float)(M_PI / 4), (float)(WIDTH) / (float)(HEIGHT), 0.1f, 300.0f);
 
     unsigned int FBO;
     glGenFramebuffers(1, &FBO);
@@ -169,7 +170,7 @@ int main() {
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
         //HYSTERESIS PASS
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, FBO);
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -187,6 +188,18 @@ int main() {
             hysteresis_pass->setFloat("rand_off", dist(rng));
             time_since_reroll -= 0.5;
         }
+
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        //BLUR PASS
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        glBindTexture(GL_TEXTURE_2D, framebuffer_color_texture);
+        blur_pass->use();
+        blur_pass->setInt("image", 0);
 
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
