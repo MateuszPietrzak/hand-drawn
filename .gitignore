@@ -1,3 +1,4 @@
 Debug
 compile_commands.json
-assets/*
+assets/*.mtl
+assets/*.obj
